@@ -212,6 +212,12 @@ class NANDFlasher(TeensySerial):
 				print "NAND chip type:         H27U4G8F2D (0x%02x)"%self.DEVICE_ID
 			else:
 				print "NAND chip type:         unknown (0x%02x)"%self.DEVICE_ID
+		elif self.MF_ID == 0x2C:
+			print "NAND chip manufacturer: Micron (0x%02x)"%self.MF_ID
+			if self.DEVICE_ID == 0x44:
+				print "NAND chip type:         MT29F32G08CBADA (0x%02x)"%self.DEVICE_ID
+			else:
+				print "NAND chip type:         66+unknown (0x%02x)"%self.DEVICE_ID
 		else:
 			print "NAND chip manufacturer: unknown (0x%02x)"%self.MF_ID
 			print "NAND chip type:         unknown (0x%02x)"%self.DEVICE_ID

@@ -325,6 +325,13 @@ uint8_t nand_read_id(nand_port *nandp)
 	NAND_IO_READ(nandp, size_data);
 	NAND_IO_READ(nandp, plane_data);
 	
+	//Micron MT29F32G08CBADA
+	// maker_code : 0x2c; 
+	// device_code = 0x44;
+	// chip_data = 0x44;
+	// size_data = 0x4b;
+	// plane_data = 0xa9;
+
 	//Samsung K9F1G08R0A
 	//maker_code = 0xec;
 	//device_code = 0xf1;
@@ -426,6 +433,14 @@ uint8_t nand_read_id(nand_port *nandp)
 		nandp->info.plane_size = 1UL << 25;
 		nandp->info.bus_width = 8;
 	}
+	else if ((maker_code == 0x2c) && (device_code == 0x44)) { // Micron MT29F32G08CBADA
+		nandp->info.page_size = 8192;
+		nandp->info.block_size = 256UL * nandp->info.page_size;
+		nandp->info.num_planes = 2;
+		nandp->info.oob_size = 744;
+		nandp->info.plane_size = (1UL << 21) * 1064;
+		nandp->info.bus_width = 8;
+	}
 	else {
 		if ((maker_code == 0xEC) && (device_code == 0xF1)) // Samsung K9F1G08U0A
 			plane_data = 0x40;
@@ -507,6 +522,14 @@ uint8_t nand_read_page(nand_port *nandp) {
 	/* read command */
 	NAND_COMMAND(nandp, NAND_COMMAND_READ1);
 
+	/*
+	MT29F32G08CBADA
+	To read a page from the NAND flash array, write the 00h command to the command
+	register, then write five address cycles to the address registers, and conclude
+	with the 30h command
+	*/
+
+	
 	/* address */
 	NAND_ALE_HIGH(nandp);
 	if ((nandp->info.maker_code == 0xAD) && (nandp->info.device_code == 0x73)) {
@@ -552,6 +575,7 @@ uint8_t nand_read_page(nand_port *nandp) {
 		usb_serial_write(buf_rw, BUF_SIZE_RW);
 	}
 		
+	// TODO virer cette loop pour avoir lire l'oob !
 	uint16_t rest = PAGE_PLUS_RAS_SZ - ((PAGE_PLUS_RAS_SZ / BUF_SIZE_RW) * BUF_SIZE_RW);
 	for (i = 0; i < rest; ++i) {
 		NAND_IO_READ(nandp, buf_rw[i]);
