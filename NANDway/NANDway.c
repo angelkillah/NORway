@@ -285,7 +285,6 @@ uint8_t wait_ryby(nand_port *nandp)
 		}
 		--timeout;
 	}
-
 	return 0;
 }
 
@@ -516,7 +515,7 @@ uint8_t nand_read_id(nand_port *nandp)
 uint8_t nand_read_page(nand_port *nandp) {
 	uint16_t i;
 	uint8_t sreg;
-	
+
 	nand_enable(nandp);
 	
 	/* read command */
@@ -566,8 +565,11 @@ uint8_t nand_read_page(nand_port *nandp) {
 	cli();
 	
 	/* wait for the nand to read this page to the internal page register */
-	wait_ryby(nandp);
-	
+  uint8_t done = 0;
+  while(done == 0){
+    done = wait_ryby(nandp);
+  }
+
 	for (uint8_t k = 0; k < PAGE_PLUS_RAS_SZ / BUF_SIZE_RW; ++k) {
 		for (i = 0; i < BUF_SIZE_RW; ++i) {
 			NAND_IO_READ(nandp, buf_rw[i]);
